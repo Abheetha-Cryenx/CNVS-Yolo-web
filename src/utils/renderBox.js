@@ -5,7 +5,8 @@ import labels from "./labels.json";
  * @param {HTMLCanvasElement} canvas canvas tag reference
  * @param {Array[Object]} boxes boxes array
  */
-export const renderBoxes = (canvas, boxes) => {
+// 
+export const renderBoxes = (canvas, boxes, sizes, distance = 1) => {
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
@@ -14,7 +15,7 @@ export const renderBoxes = (canvas, boxes) => {
   // font configs
   const font = `${Math.max(
     Math.round(Math.max(ctx.canvas.width, ctx.canvas.height) / 40),
-    14
+    10
   )}px Arial`;
   ctx.font = font;
   ctx.textBaseline = "top";
@@ -37,48 +38,73 @@ export const renderBoxes = (canvas, boxes) => {
     ctx.fillStyle = color;
     const textWidth = ctx.measureText(klass + " - " + score + "%").width;
     const textHeight = parseInt(font, 10); // base 10
-    const yText = y1 - (textHeight + ctx.lineWidth);
+    const yText = y1 + height + ctx.lineWidth;
     ctx.fillRect(
       x1 - 1,
-      yText < 0 ? 0 : yText,
+      yText + ctx.lineWidth,
       textWidth + ctx.lineWidth,
       textHeight + ctx.lineWidth
     );
 
     // Draw labels
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(klass + " - " + score + "%", x1 - 1, yText < 0 ? 1 : yText + 1);
+    ctx.fillText(klass + " - " + score + "%", x1 - 1, yText + ctx.lineWidth + 1);
+
+    // Show width and height in millimeters
+    ctx.fillStyle = color;
+    ctx.fillText(
+      `H: ${(height * distance /10).toFixed(1)}mm`,
+      x1 - 1,
+      yText + textHeight + ctx.lineWidth + 10
+    );
+
+    ctx.fillStyle = color;
+    ctx.fillText(
+      `W: ${(width * distance / 10).toFixed(1)}mm`,
+      x1 - 1,
+      yText + textHeight + ctx.lineWidth + 30
+    );
   });
 };
+
+
+// class Colors {
+//   // ultralytics color palette https://ultralytics.com/
+//   constructor() {
+//     this.palette = [
+//       "#FF3838",
+//       "#FF9D97",
+//       "#FF701F",
+//       "#FFB21D",
+//       "#CFD231",
+//       "#48F90A",
+//       "#92CC17",
+//       "#3DDB86",
+//       "#1A9334",
+//       "#00D4BB",
+//       "#2C99A8",
+//       "#00C2FF",
+//       "#344593",
+//       "#6473FF",
+//       "#0018EC",
+//       "#8438FF",
+//       "#520085",
+//       "#CB38FF",
+//       "#FF95C8",
+//       "#FF37C7",
+//     ];
+//     this.n = this.palette.length;
+//   }
+
 
 class Colors {
   // ultralytics color palette https://ultralytics.com/
   constructor() {
     this.palette = [
-      "#FF3838",
-      "#FF9D97",
-      "#FF701F",
-      "#FFB21D",
-      "#CFD231",
-      "#48F90A",
-      "#92CC17",
-      "#3DDB86",
-      "#1A9334",
-      "#00D4BB",
-      "#2C99A8",
-      "#00C2FF",
-      "#344593",
-      "#6473FF",
-      "#0018EC",
-      "#8438FF",
-      "#520085",
-      "#CB38FF",
-      "#FF95C8",
-      "#FF37C7",
+      "#000000"
     ];
     this.n = this.palette.length;
   }
-
   get = (i) => this.palette[Math.floor(i) % this.n];
 
   static hexToRgba = (hex, alpha) => {
